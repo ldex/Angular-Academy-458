@@ -1,19 +1,19 @@
 import { Component, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { Product } from '../../models/product';
 import { CurrencyPipe, JsonPipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { ProductDetails } from "../product-details/product-details";
 import { ProductService } from '../product-service';
 import { OrderByPipe } from '../orderBy.pipe';
-import { single } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
-  imports: [UpperCasePipe, CurrencyPipe, OrderByPipe, JsonPipe, SlicePipe, ProductDetails],
+  imports: [UpperCasePipe, CurrencyPipe, OrderByPipe, JsonPipe, SlicePipe, RouterLink],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })
-export class ProductList {
+export default class ProductList {
   private productService = inject(ProductService)
+  private router = inject(Router)
 
   // Pagination
   pageSize = signal(5)
@@ -28,18 +28,18 @@ export class ProductList {
     this.end.set(this.start() + this.pageSize())
   }
 
-
   title: Signal<string> = signal('Products')
 
   isLoading = this.productService.isLoading
-
   error = this.productService.error
-
   products: Signal<Product[]> = this.productService.getProducts();
 
   selectedProduct: WritableSignal<Product> = signal(undefined);
 
   selectProduct(product: Product) {
     this.selectedProduct.set(product)
+    this.router.navigate(['/products', product.id])
+
+    //this.router.navigateByUrl("/products/" + product.id)
   }
 }
